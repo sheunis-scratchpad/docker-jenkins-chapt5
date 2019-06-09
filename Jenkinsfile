@@ -44,7 +44,9 @@ pipeline {
     }
     stage("Docker push") {
       steps {
-        sh "docker push sheunis/calculator"
+        withDockerRegistry([ credentialsId: "e5ccde3e-a08c-4fa9-b164-f9b5f64df3c7", url: "" ]) {
+          sh "docker push sheunis/calculator"
+        }
       }
     }
   }
