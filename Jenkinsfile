@@ -14,10 +14,10 @@ pipeline {
     stage("Code coverage") {
       steps {
         sh "./gradlew jacocoTestReport"
-        publishHTML (target: [
-          reportDir: 'build/reports/jacoco/test/html',
+        publishHTML(target: [
+          reportDir  : 'build/reports/jacoco/test/html',
           reportFiles: 'index.html',
-          reportName: "JaCoCo Report"
+          reportName : "JaCoCo Report"
         ])
         sh "./gradlew jacocoTestCoverageVerification"
       }
@@ -25,10 +25,10 @@ pipeline {
     stage("Static code analysis") {
       steps {
         sh "./gradlew checkstyleMain"
-        publishHTML (target: [
-          reportDir: 'build/reports/checkstyle/',
+        publishHTML(target: [
+          reportDir  : 'build/reports/checkstyle/',
           reportFiles: 'main.html',
-          reportName: "Checkstyle Report"
+          reportName : "Checkstyle Report"
         ])
       }
     }
@@ -44,7 +44,7 @@ pipeline {
     }
     stage("Docker push") {
       steps {
-        withDockerRegistry([ credentialsId: "e5ccde3e-a08c-4fa9-b164-f9b5f64df3c7", url: "" ]) {
+        withDockerRegistry([credentialsId: "e5ccde3e-a08c-4fa9-b164-f9b5f64df3c7", url: ""]) {
           sh "docker push sheunis/calculator"
         }
       }
@@ -56,15 +56,15 @@ pipeline {
     }
     stage("Acceptance test") {
       steps {
-        sleep 30
-        sh "chmod u+x acceptance_test.sh"
-        sh "./acceptance_test.sh"
+        sh "docker-compose -f docker-compose.yml -f acceptance/docker-compose-acceptance.yml build test"
+        sh "docker-compose -f docker-compose.yml -f acceptance/docker-compose-acceptance.yml -p acceptance up -d"
+        sh 'test $(docker wait acceptance_test_1) -eq 0'
       }
     }
   }
   post {
     always {
-      sh "docker-compose down"
+      sh "docker-compose -f docker-compose.yml -f acceptance/docker-compose-acceptance.yml -p acceptance down"
     }
   }
 }
