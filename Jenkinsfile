@@ -49,11 +49,6 @@ pipeline {
         }
       }
     }
-    stage("Deploy to staging") {
-      steps {
-        sh "docker-compose up -d"
-      }
-    }
     stage("Acceptance test") {
       steps {
         sh "docker-compose -f docker-compose.yml -f acceptance/docker-compose-acceptance.yml build test"
