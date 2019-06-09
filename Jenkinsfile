@@ -49,5 +49,16 @@ pipeline {
         }
       }
     }
+    stage("Deploy to staging") {
+      steps {
+        sh "docker run -d --rm -p 8765:8080 --name calculator sheunis/calculator"
+      }
+    }
+    stage("Acceptance test") {
+      steps {
+        sleep 30
+        sh "./acceptance_test.sh"
+      }
+    }
   }
 }
